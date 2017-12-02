@@ -1538,4 +1538,5 @@ template void ComputationNetwork::SaveToDbnFile<double>(ComputationNetworkPtr ne
 // register ComputationNetwork with the ScriptableObject system
 ScriptableObjects::ConfigurableRuntimeTypeRegister::Add<ComputationNetwork> registerComputationNetwork(L"ComputationNetwork");
 
+std::atomic<int> ComputationNetwork::s_constOnesCount(0);
 }}}

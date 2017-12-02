@@ -63,6 +63,7 @@ public:
         m_environment(make_shared<ComputationEnvironment>())
     {
         //m_pMBLayoutOfNetwork->SetAxisName(L"T");
+        s_constOnesCount++;
     }
 
     ComputationNetwork(DEVICEID_TYPE deviceId) :
@@ -75,6 +76,12 @@ public:
     virtual ~ComputationNetwork()
     {
         ClearNetwork(); // This will explicitly remove all nodes. This is needed to break circular references in loops.
+        // clear static constOnes before device tear down
+        if (--s_constOnesCount == 0)
+        {
+            ComputationNode<float>::ClearConstOnes();
+            ComputationNode<double>::ClearConstOnes();
+        }
     }
 
     void ClearNetwork();
@@ -1278,6 +1285,8 @@ private:
     // cached quick-access list for inputs and parameters
     std::map<const ComputationNodeBasePtr, std::list<ComputationNodeBasePtr>> m_inputValues;         // [out node] -> all input nodes feeding into out node
     std::map<const ComputationNodeBasePtr, std::list<ComputationNodeBasePtr>> m_learnableParameters; // [out node] -> all parameter nodes feeding into out node
+
+    static std::atomic<int> s_constOnesCount;
 
 private:
     // pool for matrices that can be shared across nodes
